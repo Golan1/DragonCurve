@@ -2,58 +2,55 @@ function Dragon(firstDir, color, d) {
     this.curves = [];
     this.dragonNumber = d;
     this.dir = firstDir;
+    this.x = 0;
+    this.y = 0;
     this.material = new THREE.LineBasicMaterial({color: color});
+    this.index = -1;
+    this.lines = new THREE.Object3D();
     this.vertices = [];
-    this.addVertice(0,0);
-    this.addVertice(directions[this.dir][0] * lineLen, directions[this.dir][1] * lineLen);
-    this.index = 0;
+    this.vertices.push(new THREE.Vector3(this.x, this.y, 0));
+    this.step();
+    this.lines.position.set(0, 0, 0);
+    this.calcGeometry(false);
 }
 
-Dragon.prototype.updateSeparation = function(z){
-    var self = this;
-    this.vertices.forEach(function(v){
-        v.z = self.dragonNumber * z;
-    });
+Dragon.prototype.updateSeparation = function(seperateLen){
+    this.lines.position.set(0,0,seperateLen * this.dragonNumber);
 }
 
-Dragon.prototype.addVertice = function(x,y){
-    this.vertices.push(new THREE.Vector3(x,y,this.dragonNumber * dragonSeparation));
-}
-Dragon.prototype.getGeometry = function (all) {
+Dragon.prototype.calcGeometry = function (all) {
+    var geometry = new THREE.Geometry();
 
-    var coor = {x: this.vertices[this.vertices.length - 1].x,
-        y: this.vertices[this.vertices.length - 1].y}
 
     if (all) {
         while (!this.isLevelCompleted()) {
-            this.step(coor);
+            this.dir = (this.dir + this.curves[this.index] + 4) % 4;
+            this.step();
         }
     }
-    else {
-        if (!this.isLevelCompleted()) {
-            this.step(coor);
-        }
+    else if (!this.isLevelCompleted()) {
+        this.dir = (this.dir + this.curves[this.index] + 4) % 4;
+        this.step();
     }
 
-    var geometry = new THREE.Geometry();
     geometry.vertices = this.vertices;
-    return geometry;
+
+    this.lines.children = [];
+    this.lines.children.push(new THREE.Line(geometry, this.material));
+
 }
 
-Dragon.prototype.step = function (coor) {
-    this.dir = (this.dir + this.curves[this.index] + 4) % 4;
+Dragon.prototype.step = function () {
+    this.x += directions[this.dir][0] * lineLen;
+    this.y += directions[this.dir][1] * lineLen;
 
-    coor['x'] += directions[this.dir][0] * lineLen;
-    coor['y'] += directions[this.dir][1] * lineLen;
-
-
-    this.addVertice(coor['x'], coor['y']);
+    this.vertices.push(new THREE.Vector3(this.x, this.y, 0));
 
     this.index++;
 }
 
 Dragon.prototype.isLevelCompleted = function () {
-    return this.index == this.curves.length;
+    return this.index === this.curves.length;
 }
 
 Dragon.prototype.nextLevel = function () {
@@ -66,4 +63,3 @@ Dragon.prototype.nextLevel = function () {
     newCurves.push((parseInt(i % 2) * 2) - 1);
     this.curves = newCurves;
 }
-

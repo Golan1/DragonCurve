@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var width = window.innerWidth;
     var height = window.innerHeight;
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({antialias: true });
     renderer.setSize(width, height);
 
     document.body.appendChild(renderer.domElement);
@@ -36,8 +36,9 @@ document.addEventListener("DOMContentLoaded", function () {
     controls.minDistance = 200;
     controls.maxDistance = 500;
 
+    scene = new THREE.Scene();
+
     init();
-    render();
     animate();
 });
 
@@ -45,39 +46,16 @@ function init() {
     for (var i = 0; i < 4; i++) {
         var d = new Dragon(i, Math.random() * 0xFFFFFFFF, i);
         dragons.push(d);
+        scene.add(d.lines);
     }
 
-    if (isSlowDrawing) {
-        scene = new THREE.Scene();
-        dragons.forEach(function (dragon) {
-            scene.add(new THREE.Line(dragon.getGeometry(false), dragon.material));
-        });
-    }
+    onSeparationChange();
 }
 
 function render() {
-
-    if (isSlowDrawing) {
-        var allDragonsCompleted = dragons.map(function (dragon) {
-            return dragon.isLevelCompleted();
-        }).reduce(function (completed, me) {
-            return completed && me;
-        });
-
-        if (!allDragonsCompleted) {
-            scene = new THREE.Scene();
-            dragons.forEach(function (dragon) {
-                scene.add(new THREE.Line(dragon.getGeometry(false), dragon.material));
-            });
-        }
-    }
-    else {
-        scene = new THREE.Scene();
-        dragons.forEach(function (dragon) {
-            scene.add(new THREE.Line(dragon.getGeometry(true), dragon.material));
-        });
-    }
-
+    dragons.forEach(function(dragon){
+        dragon.calcGeometry(!isSlowDrawing);
+    });
     renderer.render(scene, camera);
 }
 
@@ -93,16 +71,11 @@ function nextLevel() {
 
 }
 
-
 function animate() {
-
     requestAnimationFrame(animate);
 
     controls.update();
-
-
     render();
-
 }
 
 function slowmoChanged() {
@@ -110,17 +83,16 @@ function slowmoChanged() {
 }
 
 function onWindowResize() {
-
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.render(scene, camera);
 
 }
 
 function reset() {
     dragons = [];
+    scene = new THREE.Scene();
     controls.reset();
     init();
 }

@@ -11,17 +11,17 @@
 </head>
 <body>
 <button onclick="nextLevel()">Next</button>
-<input type="checkbox" id="slowmo" onclick="slowmoChanged()">Slow-Mo</input>
+<input type="checkbox" id="slowmo" onclick="slowmoChanged()" checked="true">Slow-Mo</input>
 <br/>
-<input type="number" value="10" id="lineLen" onchange="onLineLengthChanged()" style="width:40px;">line length</input>
+<input type="number" value="5" id="lineLen" onchange="onLineLengthChanged()" style="width:40px;">line length</input>
 <br/>
 <input type="number" value="1" id="reduceLen" onchange="onReduceLengthChanged()" style="width:40px;">reduce length factor</input>
 <br/>
 
 <input type="checkbox" id="0" checked="true">1</input>
-<input type="checkbox" id="1" checked="true">2</input>
-<input type="checkbox" id="2" checked="true">3</input>
-<input type="checkbox" id="3" checked="true">4</input>
+<input type="checkbox" id="1" value="false">2</input>
+<input type="checkbox" id="2" value="false">3</input>
+<input type="checkbox" id="3" value="false">4</input>
 <br/>
 <input type="number" value="0" id="dragonSeparation" onchange="onSeparationChange()" style="width:40px;">dragon Separation</input>
 <br/>

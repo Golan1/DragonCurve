@@ -1,10 +1,10 @@
 var renderer, scene, camera, controls;
 
-var isSlowDrawing = false;
+var isSlowDrawing = true;
 
 var dragons = [];
 
-var lineLen = 10;
+var lineLen = 5;
 var reduceLen = 1;
 var dragonSeparation = 0;
 

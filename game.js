@@ -4,7 +4,7 @@ var isSlowDrawing = false;
 
 var dragons = [];
 
-var lineLen = 1;
+var lineLen = 10;
 var reduceLen = 1;
 
 var directions = {

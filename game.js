@@ -4,7 +4,8 @@ var isSlowDrawing = false;
 
 var dragons = [];
 
-var lineLen = 0.1;
+var lineLen = 1;
+var reduceLen = 1;
 
 var directions = {
     0: [0, 1],
@@ -13,8 +14,9 @@ var directions = {
     3: [-1, 0]
 };
 
+window.addEventListener('resize', onWindowResize, false);
+
 document.addEventListener("DOMContentLoaded", function () {
-    window.addEventListener( 'resize', onWindowResize, false );
 
     var width = window.innerWidth;
     var height = window.innerHeight;
@@ -29,6 +31,10 @@ document.addEventListener("DOMContentLoaded", function () {
     camera.position.set(0, 0, 100);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+    init();
+});
+
+function init() {
     for (var i = 0; i < 4; i++) {
         var d = new Dragon(i, Math.random() * 0xFFFFFFFF);
         dragons.push(d);
@@ -42,8 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     animate();
-
-});
+}
 
 function render(dragons) {
 
@@ -71,12 +76,20 @@ function render(dragons) {
     renderer.render(scene, camera);
 }
 
-function nextCurves() {
-    dragons.forEach(function (dragon) {
-        dragon.nextLevel();
-    });
+function nextLevel() {
+//    dragons.forEach(function (dragon) {
+//        dragon.nextLevel();
+//    });
+
+    for (var i = 0; i < 4; i++) {
+        if (document.getElementById(i).checked) {
+            dragons[i].nextLevel();
+        }
+    }
     animate();
-    //lineLen = lineLen / 1.3;
+    lineLen = lineLen / reduceLen;
+    document.getElementById('lineLen').value = lineLen;
+
 }
 
 function Dragon(firstDir, color) {
@@ -91,10 +104,10 @@ function Dragon(firstDir, color) {
 
 Dragon.prototype.getGeometry = function (all) {
 
-    var coor = {x:this.vertices[this.vertices.length - 1].x,
-    y: this.vertices[this.vertices.length - 1].y}
+    var coor = {x: this.vertices[this.vertices.length - 1].x,
+        y: this.vertices[this.vertices.length - 1].y}
 
-    if (all){
+    if (all) {
         while (!this.isLevelCompleted()) {
             this.step(coor);
         }
@@ -144,8 +157,8 @@ function animate() {
     render(dragons);
 }
 
-function slowmoChanged(){
-    isSlowDrawing =  document.getElementById('slowmo').checked;
+function slowmoChanged() {
+    isSlowDrawing = document.getElementById('slowmo').checked;
 }
 
 function onWindowResize() {
@@ -153,7 +166,20 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
 
+}
+
+function reset() {
+    dragons = [];
+    init();
+}
+
+function onLineLengthChanged(){
+    lineLen = parseFloat(document.getElementById('lineLen').value);
+}
+
+function onReduceLengthChanged(){
+    reduceLen = parseFloat(document.getElementById('reduceLen').value);
 }

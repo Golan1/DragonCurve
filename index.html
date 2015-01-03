@@ -8,7 +8,18 @@
     <script src="game.js" type="text/javascript"></script>
 </head>
 <body>
-<button onclick="nextCurves()">Next</button>
+<button onclick="nextLevel()">Next</button>
 <input type="checkbox" id="slowmo" onclick="slowmoChanged()">Slow-Mo</input>
+<br/>
+<input type="number" value="1" id="lineLen" onchange="onLineLengthChanged()">line length</input>
+<input type="number" value="1" id="reduceLen" onchange="onReduceLengthChanged()">reduce length factor</input>
+<br/>
+
+<input type="checkbox" id="0" checked="true">1</input>
+<input type="checkbox" id="1" checked="true">2</input>
+<input type="checkbox" id="2" checked="true">3</input>
+<input type="checkbox" id="3" checked="true">4</input>
+<br/>
+<button onclick="reset()">reset</button>
 </body>
 </html>

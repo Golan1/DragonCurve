@@ -1,4 +1,4 @@
-var renderer, scene, camera;
+var renderer, scene, camera, controls;
 
 var isSlowDrawing = false;
 
@@ -6,6 +6,7 @@ var dragons = [];
 
 var lineLen = 10;
 var reduceLen = 1;
+var dragonSeparation = 0;
 
 var directions = {
     0: [0, 1],
@@ -31,12 +32,18 @@ document.addEventListener("DOMContentLoaded", function () {
     camera.position.set(0, 0, 100);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+    controls = new THREE.TrackballControls(camera, renderer.domElement);
+    controls.minDistance = 200;
+    controls.maxDistance = 500;
+
     init();
+    render();
+    animate();
 });
 
 function init() {
     for (var i = 0; i < 4; i++) {
-        var d = new Dragon(i, Math.random() * 0xFFFFFFFF);
+        var d = new Dragon(i, Math.random() * 0xFFFFFFFF, i);
         dragons.push(d);
     }
 
@@ -46,11 +53,9 @@ function init() {
             scene.add(new THREE.Line(dragon.getGeometry(false), dragon.material));
         });
     }
-
-    animate();
 }
 
-function render(dragons) {
+function render() {
 
     if (isSlowDrawing) {
         var allDragonsCompleted = dragons.map(function (dragon) {
@@ -77,84 +82,27 @@ function render(dragons) {
 }
 
 function nextLevel() {
-//    dragons.forEach(function (dragon) {
-//        dragon.nextLevel();
-//    });
-
     for (var i = 0; i < 4; i++) {
         if (document.getElementById(i).checked) {
             dragons[i].nextLevel();
         }
     }
-    animate();
+
     lineLen = lineLen / reduceLen;
     document.getElementById('lineLen').value = lineLen;
 
 }
 
-function Dragon(firstDir, color) {
-    this.curves = [];
-    this.dir = firstDir;
-    this.material = new THREE.LineBasicMaterial({color: color});
-    this.vertices = [];
-    this.vertices.push(new THREE.Vector3(0, 0, 0));
-    this.vertices.push(new THREE.Vector3(directions[this.dir][0] * lineLen, directions[this.dir][1] * lineLen, 0));
-    this.index = 0;
-}
-
-Dragon.prototype.getGeometry = function (all) {
-
-    var coor = {x: this.vertices[this.vertices.length - 1].x,
-        y: this.vertices[this.vertices.length - 1].y}
-
-    if (all) {
-        while (!this.isLevelCompleted()) {
-            this.step(coor);
-        }
-    }
-    else {
-        if (!this.isLevelCompleted()) {
-            this.step(coor);
-        }
-    }
-
-    var geometry = new THREE.Geometry();
-    geometry.vertices = this.vertices;
-    return geometry;
-}
-
-Dragon.prototype.step = function (coor) {
-    this.dir = (this.dir + this.curves[this.index] + 4) % 4;
-
-    coor['x'] += directions[this.dir][0] * lineLen;
-    coor['y'] += directions[this.dir][1] * lineLen;
-
-    this.vertices.push(new THREE.Vector3(coor['x'], coor['y'], 0));
-
-    this.index++;
-}
-
-Dragon.prototype.isLevelCompleted = function () {
-    return this.index == this.curves.length;
-}
-
-Dragon.prototype.nextLevel = function () {
-    var newCurves = [];
-    var i = 0;
-    for (; i < this.curves.length; i++) {
-        newCurves.push((parseInt(i % 2) * 2) - 1);
-        newCurves.push(this.curves[i]);
-    }
-    newCurves.push((parseInt(i % 2) * 2) - 1);
-    this.curves = newCurves;
-}
 
 function animate() {
-    if (isSlowDrawing) {
-        requestAnimationFrame(animate);
-    }
 
-    render(dragons);
+    requestAnimationFrame(animate);
+
+    controls.update();
+
+
+    render();
+
 }
 
 function slowmoChanged() {
@@ -173,13 +121,21 @@ function onWindowResize() {
 
 function reset() {
     dragons = [];
+    controls.reset();
     init();
 }
 
-function onLineLengthChanged(){
+function onLineLengthChanged() {
     lineLen = parseFloat(document.getElementById('lineLen').value);
 }
 
-function onReduceLengthChanged(){
+function onReduceLengthChanged() {
     reduceLen = parseFloat(document.getElementById('reduceLen').value);
+}
+
+function onSeparationChange(){
+    dragonSeparation = parseFloat(document.getElementById('dragonSeparation').value);
+    dragons.forEach(function(dragon){
+        dragon.updateSeparation(dragonSeparation);
+    })
 }

@@ -4,7 +4,7 @@ var isSlowDrawing = false;
 
 var dragons = [];
 
-var lineLen = 1;
+var lineLen = 0.1;
 
 var directions = {
     0: [0, 1],
@@ -14,6 +14,7 @@ var directions = {
 };
 
 document.addEventListener("DOMContentLoaded", function () {
+    window.addEventListener( 'resize', onWindowResize, false );
 
     var width = window.innerWidth;
     var height = window.innerHeight;
@@ -28,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
     camera.position.set(0, 0, 100);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    for (var i = 0; i < 1; i++) {
+    for (var i = 0; i < 4; i++) {
         var d = new Dragon(i, Math.random() * 0xFFFFFFFF);
         dragons.push(d);
     }
@@ -36,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (isSlowDrawing) {
         scene = new THREE.Scene();
         dragons.forEach(function (dragon) {
-            scene.add(new THREE.Line(dragon.getGeometry(), dragon.material));
+            scene.add(new THREE.Line(dragon.getGeometry(false), dragon.material));
         });
     }
 
@@ -56,14 +57,14 @@ function render(dragons) {
         if (!allDragonsCompleted) {
             scene = new THREE.Scene();
             dragons.forEach(function (dragon) {
-                scene.add(new THREE.Line(dragon.getGeometry(), dragon.material));
+                scene.add(new THREE.Line(dragon.getGeometry(false), dragon.material));
             });
         }
     }
     else {
         scene = new THREE.Scene();
         dragons.forEach(function (dragon) {
-            scene.add(new THREE.Line(dragon.getAllGeometry(), dragon.material));
+            scene.add(new THREE.Line(dragon.getGeometry(true), dragon.material));
         });
     }
 
@@ -88,19 +89,20 @@ function Dragon(firstDir, color) {
     this.index = 0;
 }
 
-Dragon.prototype.getAllGeometry = function () {
+Dragon.prototype.getGeometry = function (all) {
 
-    var X = this.vertices[this.vertices.length - 1].x;
-    var Y = this.vertices[this.vertices.length - 1].y;
+    var coor = {x:this.vertices[this.vertices.length - 1].x,
+    y: this.vertices[this.vertices.length - 1].y}
 
-    for (; this.index < this.curves.length && this.curves.length; this.index++) {
-
-        this.dir = (this.dir + this.curves[this.index] + 4) % 4;
-
-        X += directions[this.dir][0] * lineLen;
-        Y += directions[this.dir][1] * lineLen;
-
-        this.vertices.push(new THREE.Vector3(X, Y, 0));
+    if (all){
+        while (!this.isLevelCompleted()) {
+            this.step(coor);
+        }
+    }
+    else {
+        if (!this.isLevelCompleted()) {
+            this.step(coor);
+        }
     }
 
     var geometry = new THREE.Geometry();
@@ -108,26 +110,15 @@ Dragon.prototype.getAllGeometry = function () {
     return geometry;
 }
 
-Dragon.prototype.getGeometry = function () {
+Dragon.prototype.step = function (coor) {
+    this.dir = (this.dir + this.curves[this.index] + 4) % 4;
 
-    var X = this.vertices[this.vertices.length - 1].x;
-    var Y = this.vertices[this.vertices.length - 1].y;
+    coor['x'] += directions[this.dir][0] * lineLen;
+    coor['y'] += directions[this.dir][1] * lineLen;
 
-    if (!this.isLevelCompleted()) {
+    this.vertices.push(new THREE.Vector3(coor['x'], coor['y'], 0));
 
-        this.dir = (this.dir + this.curves[this.index] + 4) % 4;
-
-        X += directions[this.dir][0] * lineLen;
-        Y += directions[this.dir][1] * lineLen;
-
-        this.vertices.push(new THREE.Vector3(X, Y, 0));
-
-        this.index++;
-    }
-
-    var geometry = new THREE.Geometry();
-    geometry.vertices = this.vertices;
-    return geometry;
+    this.index++;
 }
 
 Dragon.prototype.isLevelCompleted = function () {
@@ -155,4 +146,14 @@ function animate() {
 
 function slowmoChanged(){
     isSlowDrawing =  document.getElementById('slowmo').checked;
+}
+
+function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.render(scene, camera);
+
 }

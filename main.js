@@ -1,6 +1,6 @@
 app = angular.module('app', []);
 
-app.controller('mainCtrl', function($scope, $window){
+app.controller('mainCtrl', function ($scope, $window, $timeout) {
     $scope.slowmo = true;
     $scope.dragons = [];
     $scope.lineLen = 5;
@@ -9,37 +9,44 @@ app.controller('mainCtrl', function($scope, $window){
 
     var renderer, scene, camera, controls;
 
-    $window.addEventListener('resize', function() {
+    $window.addEventListener('resize', function () {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
 
         renderer.setSize(window.innerWidth, window.innerHeight);
 
     }, false);
-    init();
 
-    $scope.$watch('dragonSeparation', function(newVal){
-        $scope.dragons.forEach(function(d){d.graphics.updateSeparation(newVal)});
+
+    $scope.$watch('dragonSeparation', function (newVal) {
+        $scope.dragons.forEach(function (d) {
+            d.graphics.updateSeparation(newVal)
+        });
     });
 
-    $scope.reset = function(){
+    $scope.reset = function () {
         scene = new THREE.Scene();
         controls.reset();
         initDragons();
     };
 
 
-    $scope.nextLevel = function() {
+    $scope.nextLevel = function () {
         $scope.dragons
-            .filter(function(d){return d.active})
-            .forEach(function(d){d.graphics.nextLevel()});
+            .filter(function (d) {
+                return d.active
+            })
+            .forEach(function (d) {
+                d.graphics.nextLevel()
+            });
 
         $scope.lineLen /= $scope.reduceLen;
 
     }
 
+    init();
 
-    function init () {
+    function init() {
         var width = window.innerWidth;
         var height = window.innerHeight;
 
@@ -59,14 +66,10 @@ app.controller('mainCtrl', function($scope, $window){
 
         scene = new THREE.Scene();
 
-//        var g = new THREE.Geometry();
-//        g.vertices.push(new THREE.Vector3(0,0,0));
-//        g.vertices.push(new THREE.Vector3(0,0,10));
-//
-//        scene.add(new THREE.Line(g, new THREE.LineBasicMaterial({color: 0xFFFFFFFF})))
-
-        initDragons();
         animate();
+
+        //in this case we can position the starting point in a different location, not sure why
+        $timeout(initDragons);
     }
 
     function initDragons() {
@@ -76,6 +79,12 @@ app.controller('mainCtrl', function($scope, $window){
             $scope.dragons.push({active: true, graphics: d});
             scene.add(d.lines);
         }
+
+//        var g = new THREE.Geometry();
+//        g.vertices.push(new THREE.Vector3(0, 0, 0));
+//        g.vertices.push(new THREE.Vector3(0, 0, 10));
+//
+//        scene.add(new THREE.Line(g, new THREE.LineBasicMaterial({color: 0xFFFFFFFF})))
 
         //onSeparationChange();
     }
@@ -89,17 +98,9 @@ app.controller('mainCtrl', function($scope, $window){
 
 
     function render() {
-        $scope.dragons.forEach(function(dragon){
+        $scope.dragons.forEach(function (dragon) {
             dragon.graphics.calcGeometry(!$scope.slowmo, $scope.lineLen);
         });
         renderer.render(scene, camera);
     }
 });
-
-
-
-
-
-
-
-

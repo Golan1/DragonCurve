@@ -24,11 +24,11 @@ function Dragon(firstDir, color, d, lineLen) {
 
     this.step(lineLen);
     this.calcGeometry(false, lineLen, true);
-//    this.lines.position.set(0 , 0, 5);
+//    this.lines.position.set(0, 0, 5);
 }
 
-Dragon.prototype.updateSeparation = function(separateLen){
-    this.lines.position.set(0,0,separateLen * this.dragonNumber);
+Dragon.prototype.updateSeparation = function (separateLen) {
+    this.lines.position.set(0, 0, separateLen * this.dragonNumber);
 }
 
 Dragon.prototype.calcGeometry = function (all, lineLen, forceRender) {
@@ -46,8 +46,7 @@ Dragon.prototype.calcGeometry = function (all, lineLen, forceRender) {
         isRenderNeeded = true;
     }
 
-    if (isRenderNeeded)
-    {
+    if (isRenderNeeded) {
         var geometry = new THREE.Geometry();
         geometry.vertices = this.vertices;
 

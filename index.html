@@ -17,9 +17,11 @@
 <br/>
 <input type="number" ng-model="reduceLen" style="width:40px;">reduce length factor</input>
 <br/>
-<div ng-repeat="d in dragons" style="display:inline"><input type="checkbox" ng-model="d.active">{{$index + 1}}</input> </div>
+
+<div ng-repeat="d in dragons" style="display:inline"><input type="checkbox" ng-model="d.active">{{$index + 1}}</input>
+</div>
 <br/>
-<input type="number"  ng-model="dragonSeparation" style="width:40px;">dragon Separation</input>
+<input type="number" ng-model="dragonSeparation" style="width:40px;">dragon Separation</input>
 <br/>
 <button ng-click="reset()">reset</button>
 </body>

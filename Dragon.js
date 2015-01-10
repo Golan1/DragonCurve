@@ -1,46 +1,62 @@
-function Dragon(firstDir, color, d) {
+var directions = {
+    0: [0, 1],
+    1: [1, 0],
+    2: [0, -1],
+    3: [-1, 0]
+};
+
+function Dragon(firstDir, color, d, lineLen) {
     this.curves = [];
+
     this.dragonNumber = d;
     this.dir = firstDir;
+    this.material = new THREE.LineBasicMaterial({color: color});
+
     this.x = 0;
     this.y = 0;
-    this.material = new THREE.LineBasicMaterial({color: color});
     this.index = -1;
+
     this.lines = new THREE.Object3D();
+
+
     this.vertices = [];
     this.vertices.push(new THREE.Vector3(this.x, this.y, 0));
-    this.step();
-    this.lines.position.set(0, 0, 0);
-    this.calcGeometry(false);
+
+    this.step(lineLen);
+    this.calcGeometry(false, lineLen, true);
+//    this.lines.position.set(0 , 0, 5);
 }
 
-Dragon.prototype.updateSeparation = function(seperateLen){
-    this.lines.position.set(0,0,seperateLen * this.dragonNumber);
+Dragon.prototype.updateSeparation = function(separateLen){
+    this.lines.position.set(0,0,separateLen * this.dragonNumber);
 }
 
-Dragon.prototype.calcGeometry = function (all) {
-    var geometry = new THREE.Geometry();
-
-
+Dragon.prototype.calcGeometry = function (all, lineLen, forceRender) {
+    var isRenderNeeded = forceRender;
     if (all) {
         while (!this.isLevelCompleted()) {
             this.dir = (this.dir + this.curves[this.index] + 4) % 4;
-            this.step();
+            this.step(lineLen);
+            isRenderNeeded = true;
         }
     }
     else if (!this.isLevelCompleted()) {
         this.dir = (this.dir + this.curves[this.index] + 4) % 4;
-        this.step();
+        this.step(lineLen);
+        isRenderNeeded = true;
     }
 
-    geometry.vertices = this.vertices;
+    if (isRenderNeeded)
+    {
+        var geometry = new THREE.Geometry();
+        geometry.vertices = this.vertices;
 
-    this.lines.children = [];
-    this.lines.children.push(new THREE.Line(geometry, this.material));
-
+        this.lines.children = [];
+        this.lines.add(new THREE.Line(geometry, this.material));
+    }
 }
 
-Dragon.prototype.step = function () {
+Dragon.prototype.step = function (lineLen) {
     this.x += directions[this.dir][0] * lineLen;
     this.y += directions[this.dir][1] * lineLen;
 

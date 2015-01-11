@@ -3,17 +3,19 @@ app = angular.module('app', []);
 app.controller('mainCtrl', function ($scope, $window, $timeout) {
     $scope.slowmo = true;
     $scope.dragons = [];
-    $scope.lineLen = 5;
+    $scope.lineLen = 1;
     $scope.reduceLen = 1;
     $scope.dragonSeparation = 0;
 
     var renderer, scene, camera, controls;
 
     $window.addEventListener('resize', function () {
-        camera.aspect = window.innerWidth / window.innerHeight;
+        var width = window.innerWidth;
+        var height = window.innerHeight - 180;
+        camera.aspect = width / height;
         camera.updateProjectionMatrix();
 
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(width, height);
 
     }, false);
 
@@ -25,6 +27,8 @@ app.controller('mainCtrl', function ($scope, $window, $timeout) {
     });
 
     $scope.reset = function () {
+        $scope.dragonSeparation = 0;
+        $scope.lineLen = 1;
         scene = new THREE.Scene();
         controls.reset();
         initDragons();
@@ -42,27 +46,27 @@ app.controller('mainCtrl', function ($scope, $window, $timeout) {
 
         $scope.lineLen /= $scope.reduceLen;
 
-    }
+    };
 
     init();
 
     function init() {
         var width = window.innerWidth;
-        var height = window.innerHeight;
+        var height = window.innerHeight - 180;
 
-        renderer = new THREE.WebGLRenderer({antialias: true });
+        renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(width, height);
 
-        document.body.appendChild(renderer.domElement);
+        document.getElementById('canvas').appendChild(renderer.domElement);
 
-        camera = new THREE.PerspectiveCamera(45, width / height, 1, 500);
+        camera = new THREE.PerspectiveCamera(45, width / height, 1, 5000);
 
         camera.position.set(0, 0, 100);
         camera.lookAt(new THREE.Vector3(0, 0, 0));
 
         controls = new THREE.TrackballControls(camera, renderer.domElement);
-        controls.minDistance = 200;
-        controls.maxDistance = 500;
+        controls.minDistance = 2;
+        controls.maxDistance = 2000;
 
         scene = new THREE.Scene();
 
@@ -85,8 +89,6 @@ app.controller('mainCtrl', function ($scope, $window, $timeout) {
 //        g.vertices.push(new THREE.Vector3(0, 0, 10));
 //
 //        scene.add(new THREE.Line(g, new THREE.LineBasicMaterial({color: 0xFFFFFFFF})))
-
-        //onSeparationChange();
     }
 
     function animate() {

@@ -27,6 +27,8 @@ function Dragon(firstDir, color, d, lineLen) {
 //    this.lines.position.set(0, 0, 5);
 }
 
+Dragon.maxLength = Math.pow(2,16) - 1;
+
 Dragon.prototype.updateSeparation = function (separateLen) {
     this.lines.position.set(0, 0, separateLen * this.dragonNumber);
 }
@@ -69,12 +71,14 @@ Dragon.prototype.isLevelCompleted = function () {
 }
 
 Dragon.prototype.nextLevel = function () {
-    var newCurves = [];
-    var i = 0;
-    for (; i < this.curves.length; i++) {
+    if (this.curves.length < Dragon.maxLength) {
+        var newCurves = [];
+        var i = 0;
+        for (; i < this.curves.length; i++) {
+            newCurves.push((parseInt(i % 2) * 2) - 1);
+            newCurves.push(this.curves[i]);
+        }
         newCurves.push((parseInt(i % 2) * 2) - 1);
-        newCurves.push(this.curves[i]);
+        this.curves = newCurves;
     }
-    newCurves.push((parseInt(i % 2) * 2) - 1);
-    this.curves = newCurves;
 }

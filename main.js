@@ -6,6 +6,10 @@ app.controller('mainCtrl', function ($scope, $window, $timeout) {
     $scope.lineLen = 1;
     $scope.reduceLen = 1;
     $scope.dragonSeparation = 0;
+    $scope.numDragons = 4;
+
+    var z;
+    var y;
 
     var renderer, scene, camera, controls;
 
@@ -21,18 +25,26 @@ app.controller('mainCtrl', function ($scope, $window, $timeout) {
 
 
     $scope.$watch('dragonSeparation', function (newVal) {
-        $scope.dragons.forEach(function (d) {
-            d.graphics.updateSeparation(newVal)
-        });
+        updateSeperation(newVal);
     });
 
+    function updateSeperation(val) {
+        $scope.dragons.forEach(function (d) {
+            d.graphics.updateSeparation(val)
+        });
+    }
+
     $scope.reset = function () {
+        reset();
+        initDragons();
+    };
+
+    function reset() {
         $scope.dragonSeparation = 0;
         $scope.lineLen = 1;
         scene = new THREE.Scene();
         controls.reset();
-        initDragons();
-    };
+    }
 
 
     $scope.nextLevel = function () {
@@ -47,6 +59,62 @@ app.controller('mainCtrl', function ($scope, $window, $timeout) {
         $scope.lineLen /= $scope.reduceLen;
 
     };
+
+    $scope.learnMode = function () {
+        z = 500;
+        y = 0;
+        $scope.numDragons = 15;
+        reset();
+
+        $scope.slowmo = false;
+        $scope.lineLen = 1;
+        $scope.reduceLen = 1;
+        $scope.dragonSeparation = 20;
+
+        $scope.dragons = [];
+        for (var i = 0; i < $scope.numDragons; i++) {
+            addNewDragon(i, 0, true);
+            $scope.nextLevel();
+        }
+
+        updateSeperation($scope.dragonSeparation);
+
+        disableControls();
+        moveLearnMode();
+    }
+
+    //TODO: move to the controler
+    function disableControls() {
+        controls.noRotate = true;
+        controls.noZoom = true;
+        controls.noPan = true;
+        controls.noRoll = true;
+    }
+
+    function enableControls() {
+        controls.noRotate = false;
+        controls.noZoom = false;
+        controls.noPan = false;
+        controls.noRoll = false;
+    }
+
+    //TODO: run on animate not with $timeout!
+    function moveLearnMode() {
+        //TODO: find the right way
+        camera.position.set(0, y, z);
+        //TODO: use zoom function instead?
+        z--;
+        //TODO: use exponential function to calculate y and z
+        y -= Math.pow(2, y / 10);
+        if (z > 0) {
+            $timeout(moveLearnMode, 10);
+        }
+        else {
+            camera.position.set(0, 0, 500);
+            enableControls();
+        }
+
+    }
 
     init();
 
@@ -78,10 +146,8 @@ app.controller('mainCtrl', function ($scope, $window, $timeout) {
 
     function initDragons() {
         $scope.dragons = [];
-        for (var i = 0; i < 4; i++) {
-            var d = new Dragon(i, Math.random() * 0xFFFFFFFF, i, $scope.lineLen);
-            $scope.dragons.push({active: true, graphics: d});
-            scene.add(d.lines);
+        for (var i = 0; i < $scope.numDragons; i++) {
+            addNewDragon(i, i % 4, true);
         }
 
 //        var g = new THREE.Geometry();
@@ -89,6 +155,12 @@ app.controller('mainCtrl', function ($scope, $window, $timeout) {
 //        g.vertices.push(new THREE.Vector3(0, 0, 10));
 //
 //        scene.add(new THREE.Line(g, new THREE.LineBasicMaterial({color: 0xFFFFFFFF})))
+    }
+
+    function addNewDragon(index, direction, active) {
+        var d = new Dragon(direction, Math.random() * 0xFFFFFFFF, index, $scope.lineLen);
+        $scope.dragons.push({active: active, graphics: d});
+        scene.add(d.lines);
     }
 
     function animate() {

@@ -12,7 +12,11 @@
 </head>
 <body ng-controller="mainCtrl">
 <div>GitHub: <a href="https://github.com/Golan1/DragonCurve">https://github.com/Golan1/DragonCurve</a></div>
-
+<div style="float: right;">
+    Modes:
+    <br/>
+    <button ng-click="learnMode()" class="btn btn-info">Learn</button>
+</div>
 <input type="checkbox" id="slowmo" ng-model="slowmo">Slow-Mo</input>
 
 <br/>
@@ -21,7 +25,10 @@
 <input type="number" ng-model="reduceLen" style="width:40px;" step="0.1">reduce length factor</input>
 <br/>
 
-<div style="display: inline" >Active Dragons:</div>
+<div style="display: inline">Number of Dragons:</div>
+<input type="number" ng-model="numDragons" style="width:50px;"/>
+</div>
+<div style="display: inline">Active Dragons:</div>
 <div ng-repeat="d in dragons" style="display:inline">
     <input type="checkbox" ng-model="d.active">{{$index + 1}}</input>
 </div>
@@ -29,7 +36,8 @@
 
 <button class="btn btn-primar" ng-click="nextLevel()" style="width: 50%">Next</button>
 <button ng-click="reset()" class="btn btn-danger" style="float: right; width: 50%">reset</button>
-<input type="range" ng-model="dragonSeparation" min ="-100" max="100" step="0.1"/>
+<input type="range" ng-model="dragonSeparation" min="-100" max="100" step="0.1"/>
+
 <div id="canvas"></div>
 </body>
 </html>
